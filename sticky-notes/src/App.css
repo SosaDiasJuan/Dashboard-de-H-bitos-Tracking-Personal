@@ -1,0 +1,4 @@
+.fondo {
+  background-color: black;
+  min-height: 100vh; /* para que se vea el fondo */
+}
