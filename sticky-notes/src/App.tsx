@@ -7,6 +7,8 @@ import "./App.css";
 export type Note = {
   id: string;
   text: string;
+  createdAt: number; //Timestamp de creación de la nota
+  pinned?: boolean; //Para pinnear una nota como importante
 };
 
 /**
@@ -33,6 +35,7 @@ function App() {
     const newNote: Note = {
       id: crypto.randomUUID(),
       text: "",
+      createdAt: Date.now()   
     };
     setNotes((prev) => [...prev, newNote]);
   };
@@ -49,6 +52,14 @@ function App() {
     setNotes((prev) => prev.filter((n) => n.id !== id));
   };
 
+  // Alternar estado de pinneado de una nota
+  const togglePin = (id: string) => {
+  console.log("togglePin llamado con id:", id);
+  setNotes(prev =>
+    prev.map(n => (n.id === id ? { ...n, pinned: !n.pinned } : n))
+  );
+};
+
   return (
     <div className="fondo" style={{ padding: "20px", fontFamily: "sans-serif" }}>
       <h1 style={{ marginBottom: "30px", color: "white", justifyContent: "center", display: "flex" }}>Sticky Notes</h1>
@@ -56,12 +67,13 @@ function App() {
       <button
         onClick={addNote}
         style={{
+          backgroundColor: "#53c756ff",
           marginBottom: "20px",
           padding: "10px 16px",
           borderRadius: "6px",
           border: "none",
           cursor: "pointer",
-          justifyContent: "center",          
+          justifyContent: "center",
           display: "flex", 
         }}
       >
@@ -76,14 +88,21 @@ function App() {
           gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
         }}
       >
-        {notes.map((n) => (
-          <NoteCard
-            key={n.id}
-            note={n}
-            onChange={updateNote}
-            onDelete={deleteNote}
-          />
-        ))}
+        {[...notes]
+  .sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return b.createdAt - a.createdAt;
+  })
+  .map((n) => (
+    <NoteCard
+      key={n.id}
+      note={n}
+      onChange={updateNote}
+      onDelete={deleteNote}
+      onPin={togglePin}
+    />
+  ))}
       </div>
     </div>
   );

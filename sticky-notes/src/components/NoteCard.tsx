@@ -5,13 +5,14 @@ type Props = {
   note: Note;
   onChange: (id: string, text: string) => void;
   onDelete: (id: string) => void;
+  onPin: (id: string) => void;
 };
 
 /**
  * Muestra una nota individual.  
  * Al hacer click, abre un modal para editar el contenido.
  */
-export default function NoteCard({ note, onChange, onDelete }: Props) {
+export default function NoteCard({ note, onChange, onDelete, onPin }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -20,34 +21,56 @@ export default function NoteCard({ note, onChange, onDelete }: Props) {
       <div
         onClick={() => setIsOpen(true)}
         style={{
-          background: "#b5ffa6ff",
+          background: note.pinned ? "#ffd966" : "#ddda1dff",
           padding: "12px",
           borderRadius: "8px",
           cursor: "pointer",
           minHeight: "120px",
           overflow: "hidden",
-          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         }}
       >
-        {note.text || "Nota vacía..."}
+        {/* Texto de la nota */}
+        <div style={{ flex: 1, overflow: "hidden", whiteSpace: "pre-wrap" }}>
+          {note.text || "Nota vacía..."}
+        </div>
 
-        {/* Botón eliminar */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation(); // evita abrir el modal al borrar
-            onDelete(note.id);
-          }}
-          style={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            border: "none",
-            cursor: "pointer",
-            background: "transparent",
-          }}
-        >
-          🗑️
-        </button>
+        {/* Barra de botones abajo */}
+        <div style={{ marginTop: "8px", display: "flex", justifyContent: "space-between" }}>
+          {/* Botón de pin */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPin(note.id);
+            }}
+            style={{
+              border: "none",
+              cursor: "pointer",
+              background: "transparent",
+              fontSize: "1.2rem",
+            }}
+          >
+            {note.pinned ? "📌" : "📍"}
+          </button>
+
+          {/* Botón eliminar */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(note.id);
+            }}
+            style={{
+              border: "none",
+              cursor: "pointer",
+              background: "transparent",
+              fontSize: "1.2rem",
+            }}
+          >
+            🗑️
+          </button>
+        </div>
       </div>
 
       {/* Modal de edición */}
@@ -56,11 +79,12 @@ export default function NoteCard({ note, onChange, onDelete }: Props) {
           style={{
             position: "fixed",
             inset: 0,
-            background: "rgba(0,0,0,0.5)",
+            background: "rgba(235, 188, 33, 0.5)",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             padding: "20px",
+            zIndex: 9999,
           }}
           onClick={() => setIsOpen(false)}
         >
@@ -72,6 +96,7 @@ export default function NoteCard({ note, onChange, onDelete }: Props) {
               width: "100%",
               maxWidth: "500px",
               borderRadius: "10px",
+              zIndex: 9999,
             }}
           >
             <h2 style={{ marginBottom: "12px" }}>Editar Nota</h2>
@@ -83,7 +108,9 @@ export default function NoteCard({ note, onChange, onDelete }: Props) {
                 width: "100%",
                 minHeight: "180px",
                 fontSize: "1rem",
-                padding: "10px",
+                padding: "8px",
+                boxSizing: "border-box",
+                resize: "vertical",
               }}
             />
 
